@@ -1,50 +1,122 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+import { ArrowUpTrayIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
-export function UploadForm({ onSuccess }: { onSuccess?: () => void }) {
-  const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+interface UploadFormProps {
+  uploading: boolean;
+  onSuccess: () => void;
+  allowMultiple?: boolean;
+  onUploading: (uploading: boolean) => void;
+}
 
-  const handleUpload = async () => {
-    if (!file) return;
-    setLoading(true);
-    setError("");
+export function UploadForm({
+  uploading,
+  onSuccess,
+  allowMultiple,
+  onUploading,
+}: UploadFormProps) {
+  const [error, setError] = useState<string | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
 
-    const formData = new FormData();
-    formData.append("file", file);
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    setFiles(acceptedFiles);
+    setError(null);
+  }, []);
 
-    const res = await fetch("/api/drive/upload", {
-      method: "POST",
-      body: formData,
-    });
+  const uploadFiles = async () => {
+    if (!files.length) return;
 
-    if (!res.ok) {
-      setError("Upload failed");
-    } else {
-      setFile(null);
-      onSuccess?.();
+    onUploading(true);
+    setError(null);
+
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("/api/drive/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) throw new Error("Upload failed");
+      } catch (err) {
+        console.error(err);
+        setError("Failed to upload file(s)");
+      }
     }
-    setLoading(false);
+
+    onUploading(false);
+    setFiles([]);
+    onSuccess();
   };
 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    multiple: allowMultiple,
+  });
+
   return (
-    <div className="mb-6 flex flex-col gap-2">
-      <input
-        data-testid="file-input"
-        type="file"
-        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-        accept="application/pdf"
-      />
-      <button
-        onClick={handleUpload}
-        disabled={!file || loading}
-        className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        uploadFiles();
+      }}
+      className="flex flex-col gap-4"
+    >
+      <div
+        {...getRootProps()}
+        className={`border-2 border-dashed rounded-md px-6 py-10 text-center cursor-pointer transition-colors ${
+          isDragActive
+            ? "border-[var(--accent)] bg-[var(--muted)]"
+            : "border-[var(--color-card-border)] bg-[var(--card-bg)] hover:bg-[var(--muted)]"
+        }`}
       >
-        {loading ? "Uploading…" : "Upload File"}
+        <input {...getInputProps()} />
+        <ArrowUpTrayIcon className="mx-auto mb-2 size-6 text-[var(--accent)]" />
+        {isDragActive ? (
+          <p className="text-sm">Drop your files here...</p>
+        ) : (
+          <p className="text-sm">
+            Drag & drop files here, or{" "}
+            <span className="underline">choose files</span>
+          </p>
+        )}
+      </div>
+
+      {files.length > 0 && (
+        <div className="space-y-2">
+          {files.map((file) => (
+            <div
+              key={file.name}
+              className="flex items-center justify-between rounded border border-[var(--color-card-border)] bg-[var(--card-bg)] px-4 py-2 text-sm"
+            >
+              <div className="truncate w-full">{file.name}</div>
+              <button
+                type="button"
+                className="ml-4 text-red-500 hover:text-red-700"
+                onClick={() =>
+                  setFiles((prev) => prev.filter((f) => f.name !== file.name))
+                }
+              >
+                <XMarkIcon className="size-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <button
+        type="submit"
+        disabled={uploading || !files.length}
+        className="gradient-background inline-flex justify-center items-center rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-50"
+      >
+        {uploading ? "Uploading..." : "Upload"}
       </button>
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-    </div>
+
+      {error && <p className="text-sm text-red-500">{error}</p>}
+    </form>
   );
 }

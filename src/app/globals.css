@@ -2,7 +2,20 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #111111;
+  --accent: #000000;
+  --accent-hover: #333333;
+  --card-bg: #fafafa;
+  --card-border: #eaeaea;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --gradient-start: #ff3868;
+  --gradient-end: #714dff;
+  --gradient: linear-gradient(
+    90deg,
+    var(--gradient-start),
+    var(--gradient-end)
+  );
+  --file-text: #000000;
 }
 
 @theme inline {
@@ -10,17 +23,91 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --shadow-elevation: var(--shadow);
+  --gradient-bg: var(--gradient);
+  --color-file-text: var(--file-text);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #000000;
+    --foreground: #ffffff;
+    --accent: #ffffff;
+    --accent-hover: #eaeaea;
+    --card-bg: #111111;
+    --card-border: #333333;
+    --gradient-start: #ff3868;
+    --gradient-end: #714dff;
+    --gradient: linear-gradient(
+      90deg,
+      var(--gradient-start),
+      var(--gradient-end)
+    );
+    --file-text: #ffffff;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+a,
+input[type="submit"],
+[role="button"],
+[tabindex]:not([tabindex="-1"]) {
+  cursor: pointer;
+}
+
+.gradient-background {
+  background-image: var(--gradient);
+}
+
+.gradient-text {
+  background-image: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes progress {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-progress {
+  animation: progress 1.2s linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.25s infinite;
 }

@@ -4,6 +4,12 @@ import GoogleProvider from "next-auth/providers/google";
 import { type NextAuthOptions } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 
+const googleScopes = [
+  "https://www.googleapis.com/auth/drive.file",
+  "https://www.googleapis.com/auth/userinfo.email",
+  "https://www.googleapis.com/auth/userinfo.profile",
+].join(" ");
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -13,8 +19,7 @@ export const authOptions: NextAuthOptions = {
         params: {
           access_type: "offline",
           prompt: "consent",
-          scope:
-            "https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/userinfo.email",
+          scope: googleScopes,
         },
       },
     }),

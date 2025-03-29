@@ -3,14 +3,12 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { UploadForm } from "./components/UploadForm";
-
-interface DriveFile {
-  id: string;
-  name: string;
-  mimeType: string;
-  modifiedTime: string;
-}
+import { UploadModal } from "./components/UploadModal";
+import { TopProgressBar } from "../components/TopProgress";
+import { NavBar } from "./components/NavBar";
+import { FileTable } from "./components/FileTable";
+import type { DriveFile } from "./types";
+import { BeakerIcon } from "@heroicons/react/24/outline";
 
 export default function DashboardPage() {
   const { status } = useSession();
@@ -24,7 +22,9 @@ export default function DashboardPage() {
     try {
       const res = await fetch("/api/drive/list");
       const data = await res.json();
-      setFiles(data);
+      if (res.ok) {
+        setFiles(data);
+      }
     } catch (error) {
       console.error(error);
       setError("Failed to load files");
@@ -34,6 +34,7 @@ export default function DashboardPage() {
   };
 
   const handleDelete = async (fileId: string) => {
+    setLoading(true);
     try {
       const res = await fetch(`/api/drive/delete?id=${fileId}`, {
         method: "DELETE",
@@ -45,71 +46,79 @@ export default function DashboardPage() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const handleDownload = (fileId: string, fileName: string) => {
-    const url = `/api/drive/download?id=${fileId}&name=${encodeURIComponent(
-      fileName
-    )}`;
-    window.open(url, "_blank");
   };
 
   useEffect(() => {
-    if (status === "loading") return;
-
-    if (status === "unauthenticated") {
-      router.replace("/login");
-    }
+    if (status === "unauthenticated") router.replace("/login");
   }, [status, router]);
 
   useEffect(() => {
-    if (status === "authenticated") {
-      fetchFiles();
-    }
+    if (status === "authenticated") fetchFiles();
   }, [status]);
 
+  if (status !== "authenticated") {
+    return <TopProgressBar loading={status === "loading"} />;
+  }
+
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-2xl font-semibold mb-6">Google Drive Files</h1>
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+      <NavBar />
+      <TopProgressBar loading={loading} />
 
-      <UploadForm onSuccess={fetchFiles} />
+      <main className="mx-auto max-w-7xl px-4 py-12 h-[calc(100vh-120px)]">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold tracking-tight">Your Files</h1>
+          <UploadModal onUploadSuccess={fetchFiles} />
+        </div>
+        <div className="h-[calc(100vh-200px)]">
+          {loading && (
+            <table className="min-w-full text-sm">
+              <tbody>
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <tr
+                    key={i}
+                    className="border-t border-[var(--color-card-border)]"
+                  >
+                    <td className="px-6 py-4 w-1/3">
+                      <div className="h-4 w-full rounded skeleton" />
+                    </td>
+                    <td className="px-6 py-4 w-1/4">
+                      <div className="h-4 w-full rounded skeleton" />
+                    </td>
+                    <td className="px-6 py-4 w-1/4">
+                      <div className="h-4 w-full rounded skeleton" />
+                    </td>
+                    <td className="px-6 py-4 text-right space-x-2 w-1/6">
+                      <div className="inline-block h-4 w-5 rounded skeleton" />
+                      <div className="inline-block h-4 w-5 rounded skeleton" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
 
-      {loading && <p>Loading...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-
-      {!loading && !error && (
-        <div className="space-y-2">
-          {files.map((file) => (
-            <div
-              key={file.id}
-              className="flex items-center justify-between rounded-md border bg-muted px-4 py-2 text-sm"
-            >
-              <div className="truncate">
-                <p className="font-medium truncate">{file.name}</p>
-                <p className="text-muted-foreground text-xs">
-                  {file.mimeType} •{" "}
-                  {new Date(file.modifiedTime).toLocaleString()}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleDownload(file.id, file.name)}
-                  className="text-sm text-blue-500 hover:underline"
-                >
-                  Download
-                </button>
-                <button
-                  onClick={() => handleDelete(file.id)}
-                  className="text-sm text-red-500 hover:underline"
-                >
-                  Delete
-                </button>
+          {error && (
+            <div className="h-full flex items-center justify-center">
+              <p className="text-sm text-red-500">{error}</p>
+            </div>
+          )}
+          {!loading && files.length === 0 && (
+            <div className="text-center text-muted-foreground py-12 h-full flex items-center justify-center">
+              <div className="flex flex-col items-center">
+                <BeakerIcon className="mx-auto size-8 text-gray-500 mb-2" />
+                <p className="text-sm">No files uploaded yet.</p>
               </div>
             </div>
-          ))}
+          )}
+          {!loading && !error && files.length > 0 && (
+            <FileTable files={files} onDelete={handleDelete} />
+          )}
         </div>
-      )}
+      </main>
     </div>
   );
 }

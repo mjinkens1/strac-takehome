@@ -15,6 +15,7 @@ const mockSession = { accessToken: "token" };
 beforeEach(() => {
   jest.resetAllMocks();
 });
+
 describe("/api/drive/upload", () => {
   it("returns 401 if not authenticated", async () => {
     (getServerSession as jest.Mock).mockResolvedValue(null);
@@ -31,24 +32,35 @@ describe("/api/drive/upload", () => {
   it("returns 400 if no file is provided", async () => {
     (getServerSession as jest.Mock).mockResolvedValue(mockSession);
     const form = new FormData();
+
     const req = new NextRequest("http://localhost/api/drive/upload", {
       method: "POST",
       body: form,
     });
+
     const res = await uploadRoute(req);
     expect(res.status).toBe(400);
   });
 
-  it("calls drive.files.create and returns success", async () => {
+  it("uploads multiple files and returns success", async () => {
     (getServerSession as jest.Mock).mockResolvedValue(mockSession);
 
-    const file = new File(["test content"], "test.pdf", {
+    const file1 = new File(["file1 content"], "file1.pdf", {
       type: "application/pdf",
     });
-    const form = new FormData();
-    form.append("file", file);
+    const file2 = new File(["file2 content"], "file2.docx", {
+      type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    });
 
-    const createMock = jest.fn().mockResolvedValue({ data: { id: "1" } });
+    const form = new FormData();
+    form.append("file", file1);
+    form.append("file", file2);
+
+    const createMock = jest
+      .fn()
+      .mockResolvedValueOnce({ data: { id: "1" } })
+      .mockResolvedValueOnce({ data: { id: "2" } });
+
     const authMock = { setCredentials: jest.fn() };
 
     (google.auth.OAuth2 as unknown as jest.Mock).mockImplementation(
@@ -64,7 +76,11 @@ describe("/api/drive/upload", () => {
     });
 
     const res = await uploadRoute(req);
+    const data = await res.json();
+
     expect(res.status).toBe(200);
-    expect(createMock).toHaveBeenCalled();
+    expect(createMock).toHaveBeenCalledTimes(2);
+    expect(data.success).toBe(true);
+    expect(data.results).toHaveLength(2);
   });
 });
