@@ -87,7 +87,7 @@ export function UploadForm({
       </div>
 
       {files.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-2 overflow-y-auto max-h-[200px]">
           {files.map((file) => (
             <div
               key={file.name}

@@ -9,6 +9,7 @@ import { NavBar } from "./components/NavBar";
 import { FileTable } from "./components/FileTable";
 import type { DriveFile } from "./types";
 import { BeakerIcon } from "@heroicons/react/24/outline";
+import { Toast } from "../components/Toast";
 
 export default function DashboardPage() {
   const { status } = useSession();
@@ -16,6 +17,10 @@ export default function DashboardPage() {
   const [files, setFiles] = useState<DriveFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   const fetchFiles = async () => {
     setLoading(true);
@@ -34,20 +39,20 @@ export default function DashboardPage() {
   };
 
   const handleDelete = async (fileId: string) => {
-    setLoading(true);
+    // Optimistically remove from UI
+    const prevFiles = [...files];
+    setFiles((f) => f.filter((file) => file.id !== fileId));
+
     try {
       const res = await fetch(`/api/drive/delete?id=${fileId}`, {
         method: "DELETE",
       });
-      if (res.ok) {
-        fetchFiles();
-      } else {
-        console.error("Delete failed");
-      }
+      if (!res.ok) throw new Error("Delete failed");
+      setToast({ message: "File deleted", type: "success" });
     } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
+      console.error("Rollback due to failed delete:", err);
+      setToast({ message: "Failed to delete file", type: "error" });
+      setFiles(prevFiles); // Rollback
     }
   };
 
@@ -116,6 +121,14 @@ export default function DashboardPage() {
           )}
           {!loading && !error && files.length > 0 && (
             <FileTable files={files} onDelete={handleDelete} />
+          )}
+
+          {toast && (
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              onClose={() => setToast(null)}
+            />
           )}
         </div>
       </main>
