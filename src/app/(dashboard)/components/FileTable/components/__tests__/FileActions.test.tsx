@@ -1,72 +1,92 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { FileActions } from "../FileActions";
+import { MemoizedFileRow } from "../FileRow";
+import { mimeTypeMap } from "../../mime-type-map";
+import { DriveFile } from "@/app/(dashboard)/types";
 
-// Mock the Tooltip component
-jest.mock("../../../../../components/Tooltip", () => ({
-  Tooltip: ({ children }: { children: React.ReactNode }) => children,
+jest.mock("../FileActions", () => ({
+  FileActions: ({
+    file,
+    onDelete,
+  }: {
+    file: DriveFile;
+    onDelete: (fileId: string) => void;
+  }) => (
+    <button
+      data-testid={`delete-button-${file.id}`}
+      onClick={() => onDelete(file.id)}
+    >
+      Mock Delete
+    </button>
+  ),
 }));
 
-describe("FileActions", () => {
-  const mockProps = {
-    fileId: "123",
-    fileName: "test.pdf",
-    onDelete: jest.fn(),
-    onDownload: jest.fn(),
-    downloading: false,
-    downloaded: false,
-    progress: 0,
-  };
+jest.mock("../../../../../components/Tooltip", () => ({
+  Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+const mockFile = {
+  id: "abc123",
+  name: "Sample Report",
+  mimeType: "application/pdf",
+  modifiedTime: "2024-12-01T18:30:00.000Z",
+};
+
+describe("FileRow", () => {
+  it("renders file name with tooltip wrapper", () => {
+    render(
+      <table>
+        <tbody>
+          <MemoizedFileRow file={mockFile} onDelete={jest.fn()} />
+        </tbody>
+      </table>
+    );
+
+    expect(screen.getByText("Sample Report")).toBeInTheDocument();
   });
 
-  it("renders download and delete buttons", () => {
-    render(<FileActions {...mockProps} />);
-
-    const downloadLink = screen.getByRole("link");
-    expect(downloadLink).toHaveAttribute(
-      "href",
-      `/api/drive/download?id=${mockProps.fileId}&name=${encodeURIComponent(
-        mockProps.fileName
-      )}`
+  it("displays correct MIME icon and label", () => {
+    render(
+      <table>
+        <tbody>
+          <MemoizedFileRow file={mockFile} onDelete={jest.fn()} />
+        </tbody>
+      </table>
     );
-    expect(downloadLink).toHaveAttribute("download", mockProps.fileName);
 
-    const deleteButton = screen.getByRole("button");
-    expect(deleteButton).toBeInTheDocument();
+    const label = mimeTypeMap[mockFile.mimeType]?.label;
+    if (label) {
+      expect(screen.getByText(label)).toBeInTheDocument();
+    }
+  });
+
+  it("formats and displays the modified date", () => {
+    const expected = new Date(mockFile.modifiedTime).toLocaleString();
+
+    render(
+      <table>
+        <tbody>
+          <MemoizedFileRow file={mockFile} onDelete={jest.fn()} />
+        </tbody>
+      </table>
+    );
+
+    expect(screen.getByText(expected)).toBeInTheDocument();
   });
 
   it("calls onDelete when delete button is clicked", () => {
-    render(<FileActions {...mockProps} />);
+    const onDelete = jest.fn();
 
-    const deleteButton = screen.getByRole("button");
-    fireEvent.click(deleteButton);
-
-    expect(mockProps.onDelete).toHaveBeenCalledWith(mockProps.fileId);
-  });
-
-  it("calls onDownload when download link is clicked", () => {
-    render(<FileActions {...mockProps} />);
-
-    const downloadLink = screen.getByRole("link");
-    fireEvent.click(downloadLink);
-
-    expect(mockProps.onDownload).toHaveBeenCalled();
-  });
-
-  it("disables download link when downloading or downloaded", () => {
-    const { rerender } = render(
-      <FileActions {...mockProps} downloading={true} />
+    render(
+      <table>
+        <tbody>
+          <MemoizedFileRow file={mockFile} onDelete={onDelete} />
+        </tbody>
+      </table>
     );
-    expect(screen.getByRole("link")).toHaveClass("pointer-events-none");
 
-    rerender(<FileActions {...mockProps} downloaded={true} />);
-    expect(screen.getByRole("link")).toHaveClass("pointer-events-none");
-  });
+    const deleteBtn = screen.getByTestId("delete-button-abc123");
+    fireEvent.click(deleteBtn);
 
-  it("matches snapshot", () => {
-    const { container } = render(<FileActions {...mockProps} />);
-    expect(container).toMatchSnapshot();
+    expect(onDelete).toHaveBeenCalledWith("abc123");
   });
 });

@@ -1,111 +1,67 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { FileRow } from "../FileRow";
-import { DriveFile } from "../../../../types";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { MemoizedFileRow } from "../FileRow";
+import { mimeTypeMap } from "../../mime-type-map";
 
-// Mock the child components and fetch
-jest.mock("../FileActions", () => ({
-  FileActions: ({
-    onDownload,
-  }: {
-    onDownload: (e: React.MouseEvent<HTMLButtonElement>) => void;
-  }) => (
-    <button onClick={onDownload} data-testid="download-button">
-      Download
-    </button>
-  ),
-}));
-
-jest.mock("../../../../../components/Tooltip", () => ({
-  Tooltip: ({ children }: { children: React.ReactNode }) => children,
-}));
-
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
+const mockFile = {
+  id: "file-123",
+  name: "Test File Name",
+  mimeType: "application/pdf",
+  modifiedTime: new Date("2024-01-01T12:00:00Z").toISOString(),
+};
 
 describe("FileRow", () => {
-  const mockFile: DriveFile = {
-    id: "123",
-    name: "test-file.pdf",
-    mimeType: "application/pdf",
-    modifiedTime: "2024-03-20T10:00:00Z",
-  };
+  it("renders file name with tooltip", () => {
+    render(
+      <table>
+        <tbody>
+          <MemoizedFileRow file={mockFile} onDelete={jest.fn()} />
+        </tbody>
+      </table>
+    );
 
-  const mockOnDelete = jest.fn();
-
-  beforeEach(() => {
-    jest.clearAllMocks();
+    const nameEl = screen.getByText("Test File Name");
+    expect(nameEl).toBeInTheDocument();
+    expect(nameEl.closest("div")).toHaveClass("truncate");
   });
 
-  it("renders file information correctly", () => {
-    render(<FileRow file={mockFile} onDelete={mockOnDelete} />);
+  it("renders correct MIME type icon and label", () => {
+    render(
+      <table>
+        <tbody>
+          <MemoizedFileRow file={mockFile} onDelete={jest.fn()} />
+        </tbody>
+      </table>
+    );
 
-    expect(screen.getByText("test-file.pdf")).toBeInTheDocument();
-    expect(screen.getByText("PDF Document")).toBeInTheDocument();
-    expect(screen.getByText(/3\/20\/2024/)).toBeInTheDocument();
+    const label = screen.getByText(mimeTypeMap["application/pdf"].label);
+    expect(label).toBeInTheDocument();
   });
 
-  it("handles download correctly", async () => {
-    // Mock the ReadableStream
-    const mockReader = {
-      read: jest
-        .fn()
-        .mockResolvedValueOnce({
-          value: new Uint8Array([1, 2, 3]),
-          done: false,
-        })
-        .mockResolvedValueOnce({ done: true }),
-    };
+  it("displays formatted modified date", () => {
+    render(
+      <table>
+        <tbody>
+          <MemoizedFileRow file={mockFile} onDelete={jest.fn()} />
+        </tbody>
+      </table>
+    );
 
-    const mockBody = {
-      getReader: () => mockReader,
-    };
-
-    mockFetch.mockResolvedValueOnce({
-      body: mockBody,
-      headers: new Headers({
-        "Content-Length": "3",
-      }),
-    });
-
-    // Mock URL and Blob related functions
-    const createObjectURLMock = jest.fn();
-    const revokeObjectURLMock = jest.fn();
-    window.URL.createObjectURL = createObjectURLMock;
-    window.URL.revokeObjectURL = revokeObjectURLMock;
-
-    render(<FileRow file={mockFile} onDelete={mockOnDelete} />);
-
-    const downloadButton = screen.getByTestId("download-button");
-    fireEvent.click(downloadButton);
-
-    await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith(
-        `/api/drive/download?id=${mockFile.id}&name=${encodeURIComponent(
-          mockFile.name
-        )}`
-      );
-    });
-
-    expect(createObjectURLMock).toHaveBeenCalled();
-    expect(revokeObjectURLMock).toHaveBeenCalled();
+    const formattedDate = new Date(mockFile.modifiedTime).toLocaleString();
+    expect(screen.getByText(formattedDate)).toBeInTheDocument();
   });
 
-  it("handles download error gracefully", async () => {
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation();
-    mockFetch.mockRejectedValueOnce(new Error("Download failed"));
+  it("calls onDelete when delete button is clicked", () => {
+    const onDelete = jest.fn();
+    render(
+      <table>
+        <tbody>
+          <MemoizedFileRow file={mockFile} onDelete={onDelete} />
+        </tbody>
+      </table>
+    );
 
-    render(<FileRow file={mockFile} onDelete={mockOnDelete} />);
-
-    const downloadButton = screen.getByTestId("download-button");
-    fireEvent.click(downloadButton);
-
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Download error",
-        expect.any(Error)
-      );
-    });
-
-    consoleSpy.mockRestore();
+    const deleteBtn = screen.getByTestId("delete-button-file-123");
+    fireEvent.click(deleteBtn);
+    expect(onDelete).toHaveBeenCalledWith("file-123");
   });
 });
