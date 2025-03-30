@@ -9,26 +9,27 @@ import { NavBar } from "./components/NavBar";
 import { FileTable } from "./components/FileTable";
 import type { DriveFile } from "./types";
 import { BeakerIcon } from "@heroicons/react/24/outline";
-import { Toast } from "../components/Toast";
+import { useToast } from "../components/Toast";
 
 export default function DashboardPage() {
   const { status } = useSession();
   const router = useRouter();
   const [files, setFiles] = useState<DriveFile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [toast, setToast] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
+  const [nextPageToken, setNextPageToken] = useState<string>();
+  const addToast = useToast();
 
-  const fetchFiles = async () => {
-    setLoading(true);
+  const fetchFiles = async (pageToken?: string, showLoading = true) => {
+    setLoading(showLoading);
     try {
-      const res = await fetch("/api/drive/list");
+      const res = await fetch(`/api/drive/list?pageToken=${pageToken || ""}`);
       const data = await res.json();
+      console.log({ data });
       if (res.ok) {
-        setFiles(data);
+        setFiles((prevFiles) => [...prevFiles, ...data.files]);
+        setNextPageToken(data.nextPageToken);
       }
     } catch (error) {
       console.error(error);
@@ -38,22 +39,35 @@ export default function DashboardPage() {
     }
   };
 
+  const handleLoadMore = async (pageToken: string) => {
+    setLoadingMore(true);
+    await fetchFiles(pageToken, false);
+    setLoadingMore(false);
+  };
+
   const handleDelete = async (fileId: string) => {
     // Optimistically remove from UI
     const prevFiles = [...files];
     setFiles((f) => f.filter((file) => file.id !== fileId));
+
+    const file = files.find((f) => f.id === fileId);
 
     try {
       const res = await fetch(`/api/drive/delete?id=${fileId}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Delete failed");
-      setToast({ message: "File deleted", type: "success" });
+      addToast({ message: "Deleted " + file?.name || "file", type: "success" });
     } catch (err) {
       console.error("Rollback due to failed delete:", err);
-      setToast({ message: "Failed to delete file", type: "error" });
+      addToast({ message: "Failed to delete file", type: "error" });
       setFiles(prevFiles); // Rollback
     }
+  };
+
+  const handleUploadSuccess = (file: DriveFile) => {
+    setFiles((prevFiles) => [...prevFiles, file]);
+    addToast({ message: "Uploaded " + file.name || "file", type: "success" });
   };
 
   useEffect(() => {
@@ -76,13 +90,13 @@ export default function DashboardPage() {
       <main className="mx-auto max-w-7xl px-4 py-12 h-[calc(100vh-120px)]">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold tracking-tight">Your Files</h1>
-          <UploadModal onUploadSuccess={fetchFiles} />
+          <UploadModal onUploadSuccess={handleUploadSuccess} />
         </div>
         <div className="h-[calc(100vh-200px)]">
           {loading && (
             <table className="min-w-full text-sm">
               <tbody>
-                {Array.from({ length: 8 }).map((_, i) => (
+                {Array.from({ length: 14 }).map((_, i) => (
                   <tr
                     key={i}
                     className="border-t border-[var(--color-card-border)]"
@@ -120,14 +134,12 @@ export default function DashboardPage() {
             </div>
           )}
           {!loading && !error && files.length > 0 && (
-            <FileTable files={files} onDelete={handleDelete} />
-          )}
-
-          {toast && (
-            <Toast
-              message={toast.message}
-              type={toast.type}
-              onClose={() => setToast(null)}
+            <FileTable
+              files={files}
+              onDelete={handleDelete}
+              nextPageToken={nextPageToken}
+              onLoadMore={handleLoadMore}
+              loadingMore={loadingMore}
             />
           )}
         </div>

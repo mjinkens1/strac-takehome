@@ -13,6 +13,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
+    "@radix-ui/react-tooltip": "^1.1.8",
     "googleapis": "^148.0.0",
     "next": "15.2.4",
     "next-auth": "^4.24.11",

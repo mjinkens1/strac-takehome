@@ -5,9 +5,9 @@ import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon, ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 import { UploadForm } from "./UploadForm";
 import { TopProgressBar } from "@/app/components/TopProgress";
-
+import { DriveFile } from "../types";
 interface UploadModalProps {
-  onUploadSuccess: () => void;
+  onUploadSuccess: (newFile: DriveFile) => void;
 }
 
 export function UploadModal({ onUploadSuccess }: UploadModalProps) {
@@ -15,9 +15,8 @@ export function UploadModal({ onUploadSuccess }: UploadModalProps) {
   const [open, setOpen] = useState(false);
   const [key, setKey] = useState(0);
 
-  const handleUploadSuccess = () => {
-    setOpen(false);
-    onUploadSuccess();
+  const handleUploadSuccess = (newFile: DriveFile) => {
+    onUploadSuccess(newFile);
   };
 
   const handleClose = () => {
@@ -61,7 +60,7 @@ export function UploadModal({ onUploadSuccess }: UploadModalProps) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <div className="overflow-hidden w-full max-w-md rounded-2xl border border-[var(--color-card-border)] bg-[var(--color-card-bg)] p-6 shadow-xl backdrop-blur-md">
+              <div className="overflow-hidden w-full max-w-xl rounded-2xl border border-[var(--color-card-border)] bg-[var(--color-card-bg)] p-6 shadow-xl backdrop-blur-md">
                 <TopProgressBar
                   className="absolute -top-6 left-0"
                   loading={uploading}
@@ -80,9 +79,10 @@ export function UploadModal({ onUploadSuccess }: UploadModalProps) {
                 <UploadForm
                   key={key}
                   onSuccess={handleUploadSuccess}
-                  onUploading={setUploading}
-                  uploading={uploading}
+                  onAllSuccess={handleClose}
                   allowMultiple
+                  uploading={uploading}
+                  onUploading={setUploading}
                 />
               </div>
             </Transition>

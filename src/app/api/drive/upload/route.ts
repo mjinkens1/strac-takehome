@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { Readable } from "stream";
+import { DriveFile } from "@/app/(dashboard)/types";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
   auth.setCredentials({ access_token: session.accessToken });
   const drive = google.drive({ version: "v3", auth });
 
-  const results: { name: string; id?: string; error?: string }[] = [];
+  const results: DriveFile[] = [];
 
   for (const file of files) {
     try {
@@ -32,17 +33,23 @@ export async function POST(req: NextRequest) {
       const res = await drive.files.create({
         requestBody: {
           name: file.name,
+          // optionally mimeType or parents
         },
         media: {
           mimeType: file.type,
           body: stream,
         },
+        fields: "id, name, mimeType, modifiedTime",
       });
-
-      results.push({ name: file.name, id: res.data.id as string });
+      console.log(res);
+      results.push({
+        name: res.data.name as string,
+        id: res.data.id as string,
+        mimeType: res.data.mimeType as string,
+        modifiedTime: res.data.modifiedTime as string,
+      });
     } catch (err) {
       console.error("Error uploading", file.name, err);
-      results.push({ name: file.name, error: "Upload failed" });
     }
   }
 

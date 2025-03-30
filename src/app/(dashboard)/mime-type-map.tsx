@@ -108,4 +108,32 @@ export const mimeTypeMap: Record<string, { label: string; icon: JSX.Element }> =
         <TableCellsIcon className="size-4 inline-block mr-1 text-lime-600" />
       ),
     },
+    "image/heif": {
+      label: "HEIF Image",
+      icon: <DocumentIcon className="size-4 inline-block mr-1 text-pink-400" />,
+    },
+    "video/mp4": {
+      label: "MP4 Video",
+      icon: (
+        <DocumentIcon className="size-4 inline-block mr-1 text-violet-500" />
+      ),
+    },
+    "video/webm": {
+      label: "WebM Video",
+      icon: (
+        <DocumentIcon className="size-4 inline-block mr-1 text-violet-500" />
+      ),
+    },
+    "video/quicktime": {
+      label: "MOV Video",
+      icon: (
+        <DocumentIcon className="size-4 inline-block mr-1 text-violet-500" />
+      ),
+    },
+    "video/x-msvideo": {
+      label: "AVI Video",
+      icon: (
+        <DocumentIcon className="size-4 inline-block mr-1 text-violet-500" />
+      ),
+    },
   };

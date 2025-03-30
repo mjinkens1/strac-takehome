@@ -2,6 +2,16 @@ import { google } from "googleapis";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
+import { Readable } from "stream";
+
+// Map of exportable Google MIME types to downloadable formats
+const EXPORT_MIME_TYPES: Record<string, string> = {
+  "application/vnd.google-apps.document": "application/pdf",
+  "application/vnd.google-apps.spreadsheet":
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.google-apps.presentation":
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+};
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -22,21 +32,56 @@ export async function GET(req: NextRequest) {
   const drive = google.drive({ version: "v3", auth });
 
   try {
+    // Always get metadata first so we can access size/mimeType
+    const fileMeta = await drive.files.get({
+      fileId,
+      fields: "mimeType, name, size",
+    });
+
+    const mimeType = fileMeta.data.mimeType;
+    const size = fileMeta.data.size
+      ? parseInt(fileMeta.data.size, 10)
+      : undefined;
+
+    if (mimeType && EXPORT_MIME_TYPES[mimeType]) {
+      const exportMimeType = EXPORT_MIME_TYPES[mimeType];
+      const result = await drive.files.export(
+        { fileId, mimeType: exportMimeType },
+        { responseType: "stream" }
+      );
+
+      // Buffer the stream to get content length
+      const chunks: Uint8Array[] = [];
+      for await (const chunk of result.data as Readable) {
+        chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+      }
+      const buffer = Buffer.concat(chunks);
+
+      return new NextResponse(buffer, {
+        headers: {
+          "Content-Type": exportMimeType,
+          "Content-Disposition": `attachment; filename="${fileName}"`,
+          "Content-Length": buffer.length.toString(),
+        },
+      });
+    }
+
+    // Standard file download (e.g., PDFs, images, videos, etc.)
     const result = await drive.files.get(
       { fileId, alt: "media" },
       { responseType: "stream" }
     );
+    const stream = result.data as Readable;
 
-    const stream = result.data as unknown as ReadableStream<Uint8Array>;
-
-    return new NextResponse(stream as BodyInit, {
+    return new NextResponse(stream as unknown as BodyInit, {
       headers: {
-        "Content-Type": "application/octet-stream",
+        "Content-Type": mimeType || "application/octet-stream",
         "Content-Disposition": `attachment; filename="${fileName}"`,
+        ...(size ? { "Content-Length": size.toString() } : {}),
       },
     });
   } catch (err) {
-    console.error(err);
+    console.error("Download failed", err);
     return NextResponse.json(
       { error: "Failed to download file" },
       { status: 500 }
