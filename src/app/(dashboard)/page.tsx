@@ -3,13 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { BeakerIcon } from "@heroicons/react/24/outline";
+
 import { UploadModal } from "./components/UploadModal/UploadModal";
 import { TopProgressBar } from "../components/TopProgress";
 import { NavBar } from "./components/Navbar/Navbar";
 import { FileTable } from "./components/FileTable/FileTable";
-import type { DriveFile } from "./types";
-import { BeakerIcon } from "@heroicons/react/24/outline";
 import { useToast } from "../components/Toast";
+import { TableSkeleton } from "./components/TableSkeleton";
+import type { DriveFile } from "./types";
 
 export default function DashboardPage() {
   const { status } = useSession();
@@ -28,7 +30,7 @@ export default function DashboardPage() {
     try {
       const res = await fetch(`/api/drive/list?pageToken=${pageToken || ""}`);
       const data = await res.json();
-      console.log({ data });
+
       if (res.ok) {
         setFiles((prevFiles) => [...prevFiles, ...data.files]);
         setNextPageToken(data.nextPageToken);
@@ -52,23 +54,24 @@ export default function DashboardPage() {
     const prevFiles = [...files];
     setFiles((f) => f.filter((file) => file.id !== fileId));
 
-    const file = files.find((f) => f.id === fileId);
-
     try {
       const res = await fetch(`/api/drive/delete?id=${fileId}`, {
         method: "DELETE",
       });
+
       if (!res.ok) throw new Error("Delete failed");
+
+      const file = files.find((f) => f.id === fileId);
       addToast({ message: "Deleted " + file?.name || "file", type: "success" });
-    } catch (err) {
-      console.error("Rollback due to failed delete:", err);
+    } catch (error) {
+      console.error("Rollback due to failed delete:", error);
       addToast({ message: "Failed to delete file", type: "error" });
       setFiles(prevFiles); // Rollback
     }
   };
 
   const handleUploadSuccess = (file: DriveFile) => {
-    setFiles((prevFiles) => [...prevFiles, file]);
+    setFiles((prevFiles) => [file, ...prevFiles]);
     addToast({ message: "Uploaded " + file.name || "file", type: "success" });
   };
 
@@ -97,33 +100,9 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-bold tracking-tight">Your Files</h1>
           <UploadModal onUploadSuccess={handleUploadSuccess} />
         </div>
+
         <div className="h-[calc(100vh-200px)]">
-          {loading && (
-            <table className="min-w-full text-sm">
-              <tbody>
-                {Array.from({ length: 14 }).map((_, i) => (
-                  <tr
-                    key={i}
-                    className="border-t border-[var(--color-card-border)]"
-                  >
-                    <td className="px-6 py-4 w-1/3">
-                      <div className="h-4 w-full rounded skeleton" />
-                    </td>
-                    <td className="px-6 py-4 w-1/4">
-                      <div className="h-4 w-full rounded skeleton" />
-                    </td>
-                    <td className="px-6 py-4 w-1/4">
-                      <div className="h-4 w-full rounded skeleton" />
-                    </td>
-                    <td className="px-6 py-4 text-right space-x-2 w-1/6">
-                      <div className="inline-block h-4 w-5 rounded skeleton" />
-                      <div className="inline-block h-4 w-5 rounded skeleton" />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+          {loading && <TableSkeleton />}
 
           {error && (
             <div className="h-full flex items-center justify-center">

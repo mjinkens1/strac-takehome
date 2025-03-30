@@ -20,15 +20,31 @@ describe("UploadForm", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Setup default useDropzone mock implementation
     (useDropzone as jest.Mock).mockReturnValue({
       getRootProps: () => ({}),
       getInputProps: () => ({}),
       isDragActive: false,
     });
+
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            results: [
+              {
+                id: "1",
+                name: "example.txt",
+                mimeType: "text/plain",
+                modifiedTime: "2025-03-30T00:00:00Z",
+              },
+            ],
+          }),
+      })
+    ) as jest.Mock;
   });
 
-  it("renders upload area when not uploading", () => {
+  it("renders upload dropzone and button", () => {
     render(
       <UploadForm
         uploading={false}
@@ -38,11 +54,11 @@ describe("UploadForm", () => {
       />
     );
 
-    expect(screen.getByTestId("file-input")).toBeInTheDocument();
     expect(screen.getByText(/drag & drop files here/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /upload/i })).toBeDisabled();
   });
 
-  it("shows upload button as disabled when no files are selected", () => {
+  it("handles successful upload flow", async () => {
     render(
       <UploadForm
         uploading={false}
@@ -52,77 +68,30 @@ describe("UploadForm", () => {
       />
     );
 
-    const uploadButton = screen.getByRole("button", { name: /upload/i });
-    expect(uploadButton).toBeDisabled();
-  });
-
-  it("handles file upload success", async () => {
-    // Mock XMLHttpRequest
-    const xhrMock = {
-      open: jest.fn(),
-      send: jest.fn(),
-      setRequestHeader: jest.fn(),
-      readyState: 4,
-      status: 200,
-      responseText: JSON.stringify({
-        results: [
-          {
-            id: "123",
-            name: "test.txt",
-            mimeType: "text/plain",
-            modifiedTime: "2024-01-01",
-          },
-        ],
-      }),
-      onload: null as unknown as (() => void) | null,
-    };
-
-    // Create a constructor that sets up the mock
-    const MockXHR = function (this: typeof xhrMock) {
-      Object.assign(this, xhrMock);
-      // Trigger onload when send is called
-      this.send = jest.fn(() => {
-        setTimeout(() => {
-          this.onload?.();
-        }, 0);
-      });
-    };
-
-    global.XMLHttpRequest = jest.fn(
-      () => new (MockXHR as unknown as new () => XMLHttpRequest)()
-    ) as unknown as typeof XMLHttpRequest;
-
-    render(
-      <UploadForm
-        uploading={false}
-        onSuccess={mockOnSuccess}
-        onUploading={mockOnUploading}
-        onAllSuccess={mockOnAllSuccess}
-      />
-    );
-
-    // Simulate file drop
-    const file = new File(["test"], "test.txt", { type: "text/plain" });
+    const file = new File(["file content"], "example.txt", {
+      type: "text/plain",
+    });
     const onDrop = (useDropzone as jest.Mock).mock.calls[0][0].onDrop;
 
     await act(async () => {
       onDrop([file]);
     });
 
-    // Trigger upload
-    const uploadButton = screen.getByRole("button", { name: /upload/i });
+    const button = screen.getByRole("button", { name: /upload/i });
+
     await act(async () => {
-      fireEvent.click(uploadButton);
+      fireEvent.click(button);
     });
 
-    // Wait for success callback
     await waitFor(() => {
+      expect(mockOnUploading).toHaveBeenCalledWith(true);
       expect(mockOnSuccess).toHaveBeenCalledWith({
-        id: "123",
-        name: "test.txt",
+        id: "1",
+        name: "example.txt",
         mimeType: "text/plain",
-        modifiedTime: "2024-01-01",
+        modifiedTime: "2025-03-30T00:00:00Z",
       });
+      expect(mockOnAllSuccess).toHaveBeenCalled();
     });
   });
 });

@@ -21,13 +21,17 @@ export async function GET(request: Request) {
   try {
     const { data } = await drive.files.list({
       pageSize: 20,
+      // Query to filter files:
+      // - Exclude deleted files
+      // - Exclude binary files
+      // - Exclude folders
       q: "trashed = false and mimeType != 'application/octet-stream' and mimeType != 'application/vnd.google-apps.folder'",
       orderBy: "modifiedTime desc",
       spaces: "drive",
       fields: "nextPageToken, files(id, name, mimeType, modifiedTime)",
       includeItemsFromAllDrives: true,
       supportsAllDrives: true,
-      pageToken: pageToken?.length ? pageToken : undefined,
+      pageToken: pageToken?.length ? pageToken : undefined, // Pass page token for pagination if it exists
     });
 
     return NextResponse.json({

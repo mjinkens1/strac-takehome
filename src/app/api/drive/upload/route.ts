@@ -31,17 +31,11 @@ export async function POST(req: NextRequest) {
       const stream = Readable.from(buffer);
 
       const res = await drive.files.create({
-        requestBody: {
-          name: file.name,
-          // optionally mimeType or parents
-        },
-        media: {
-          mimeType: file.type,
-          body: stream,
-        },
+        requestBody: { name: file.name },
+        media: { mimeType: file.type, body: stream },
         fields: "id, name, mimeType, modifiedTime",
       });
-      console.log(res);
+
       results.push({
         name: res.data.name as string,
         id: res.data.id as string,

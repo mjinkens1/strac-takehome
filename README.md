@@ -104,7 +104,7 @@ npm run test:watch
 - Authentication handled by **NextAuth.js** with Google OAuth.
 - **Google Drive API v3** integrated directly via the official `googleapis` SDK.
 - Used **Radix UI (Headless UI)** for accessible tooltip components.
-- Files are sorted by **last modified date** (both frontend and backend).
+- Files are sorted by **last modified date** with latest first.
 - Upload and delete actions implement **optimistic updates** for a smoother experience.
 - Upload/download feedback uses **spinners and checkmarks** with toast notifications.
 - UI is **dark mode only**, styled with **TailwindCSS** and CSS variables.

@@ -26,8 +26,9 @@ export const FileRow = ({ file, onDelete }: FileRowProps) => {
             file.name
           )}`
         );
-        if (!res.body) throw new Error("No response body");
 
+        if (!res.body) throw new Error("No response body");
+        // Handle progress updates
         const reader = res.body.getReader();
         const contentLength = +(res.headers.get("Content-Length") || 0);
 

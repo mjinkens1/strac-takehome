@@ -18,6 +18,9 @@ export function DownloadIcon({
     );
   }
 
+  const strokeDasharray = 2 * Math.PI * 16;
+  const strokeDashoffset = 2 * Math.PI * 16 * (1 - progress / 100);
+
   if (downloading) {
     return (
       <div className="relative size-5">
@@ -41,8 +44,8 @@ export function DownloadIcon({
             fill="none"
             className="stroke-blue-600 transition-all duration-400"
             strokeWidth="4"
-            strokeDasharray={2 * Math.PI * 16}
-            strokeDashoffset={2 * Math.PI * 16 * (1 - progress / 100)}
+            strokeDasharray={strokeDasharray}
+            strokeDashoffset={strokeDashoffset}
             strokeLinecap="round"
           />
         </svg>
