@@ -1,13 +1,14 @@
-"use client";
+'use client';
 
-import { Fragment, useState } from "react";
-import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon, ArrowUpTrayIcon } from "@heroicons/react/24/outline";
+import { Dialog, Transition } from '@headlessui/react';
+import { ArrowUpTrayIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Fragment, useState } from 'react';
 
-import { TopProgressBar } from "@/app/components/TopProgress";
+import { TopProgressBar } from '@/app/components/TopProgress';
 
-import { UploadForm } from "./components/UploadForm";
-import { DriveFile } from "../../types";
+import { DriveFile } from '../../types';
+import { UploadForm } from './components/UploadForm';
+
 interface UploadModalProps {
   onUploadSuccess: (newFile: DriveFile) => void;
 }
@@ -30,7 +31,7 @@ export function UploadModal({ onUploadSuccess }: UploadModalProps) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="gradient-background inline-flex items-center gap-2 rounded-lg border border-[var(--color-card-border)] bg-[var(--color-card-bg)] px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--muted)] transition-all"
+        className="gradient-background inline-flex items-center gap-2 rounded-lg border border-[var(--color-card-border)] bg-[var(--color-card-bg)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition-all hover:bg-[var(--muted)]"
       >
         <ArrowUpTrayIcon className="size-4" /> Upload Files
       </button>
@@ -62,15 +63,10 @@ export function UploadModal({ onUploadSuccess }: UploadModalProps) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <div className="overflow-hidden w-full max-w-xl rounded-2xl border border-[var(--color-card-border)] bg-[var(--color-card-bg)] p-6 shadow-xl backdrop-blur-md">
-                <TopProgressBar
-                  className="absolute -top-6 left-0"
-                  loading={uploading}
-                />
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-[var(--foreground)]">
-                    Upload Files
-                  </h2>
+              <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-[var(--color-card-border)] bg-[var(--color-card-bg)] p-6 shadow-xl backdrop-blur-md">
+                <TopProgressBar className="absolute -top-6 left-0" loading={uploading} />
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-[var(--foreground)]">Upload Files</h2>
                   <button
                     onClick={handleClose}
                     className="text-muted-foreground hover:text-[var(--foreground)]"

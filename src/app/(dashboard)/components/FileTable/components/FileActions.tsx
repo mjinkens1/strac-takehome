@@ -1,10 +1,10 @@
-import { useCallback, useState } from "react";
-import { TrashIcon } from "@heroicons/react/24/outline";
+import { TrashIcon } from '@heroicons/react/24/outline';
+import { useCallback, useState } from 'react';
 
-import { DriveFile } from "@/app/(dashboard)/types";
+import { DriveFile } from '@/app/(dashboard)/types';
+import { Tooltip } from '@/app/components/Tooltip';
 
-import { Tooltip } from "@/app/components/Tooltip";
-import { DownloadIcon } from "./DownloadIcon";
+import { DownloadIcon } from './DownloadIcon';
 
 interface FileActionsProps {
   file: DriveFile;
@@ -24,15 +24,13 @@ export function FileActions({ file, onDelete }: FileActionsProps) {
 
       try {
         const res = await fetch(
-          `/api/drive/download?id=${file.id}&name=${encodeURIComponent(
-            file.name
-          )}`
+          `/api/drive/download?id=${file.id}&name=${encodeURIComponent(file.name)}`,
         );
 
-        if (!res.body) throw new Error("No response body");
+        if (!res.body) throw new Error('No response body');
 
-        const contentLength = +(res.headers.get("Content-Length") || 0);
-        const contentDisposition = res.headers.get("Content-Disposition");
+        const contentLength = +(res.headers.get('Content-Length') || 0);
+        const contentDisposition = res.headers.get('Content-Disposition');
         const match = contentDisposition?.match(/filename="(.+?)"/i);
         const filename = match?.[1] || file.name;
 
@@ -55,7 +53,7 @@ export function FileActions({ file, onDelete }: FileActionsProps) {
 
         const blob = new Blob(chunks);
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
+        const a = document.createElement('a');
         a.href = url;
         a.download = filename;
         document.body.appendChild(a);
@@ -65,28 +63,24 @@ export function FileActions({ file, onDelete }: FileActionsProps) {
 
         setDownloaded(true);
       } catch (err) {
-        console.error("Download error", err);
+        console.error('Download error', err);
       } finally {
         setDownloading(false);
       }
     },
-    [file]
+    [file],
   );
 
   return (
-    <td className="w-[10%] px-6 py-4 text-right space-x-4 whitespace-nowrap">
+    <td className="w-[10%] space-x-4 px-6 py-4 text-right whitespace-nowrap">
       <a
         href="#"
         onClick={handleDownload}
-        className={`text-blue-600 hover:text-blue-800 inline-block ${
-          downloading || downloaded ? "pointer-events-none" : ""
+        className={`inline-block text-blue-600 hover:text-blue-800 ${
+          downloading || downloaded ? 'pointer-events-none' : ''
         }`}
       >
-        <DownloadIcon
-          downloaded={downloaded}
-          downloading={downloading}
-          progress={progress}
-        />
+        <DownloadIcon downloaded={downloaded} downloading={downloading} progress={progress} />
       </a>
 
       <Tooltip text="Delete">

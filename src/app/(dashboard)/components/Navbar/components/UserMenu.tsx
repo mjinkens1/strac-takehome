@@ -1,29 +1,26 @@
-import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/react";
-import {
-  UserCircleIcon,
-  ArrowRightStartOnRectangleIcon,
-} from "@heroicons/react/24/outline";
-import { signOut, useSession } from "next-auth/react";
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { ArrowRightStartOnRectangleIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { signOut, useSession } from 'next-auth/react';
 
 export function UserMenu() {
   const { data: session } = useSession();
 
   return (
     <Menu as="div" className="relative inline-block text-left">
-      <MenuButton className="inline-flex items-center gap-2 text-muted-foreground hover:text-[var(--foreground)] transition-colors">
+      <MenuButton className="text-muted-foreground inline-flex items-center gap-2 transition-colors hover:text-[var(--foreground)]">
         <UserCircleIcon className="size-5" color="var(--gradient-start)" />
         {(session?.user?.name || session?.user?.email) && (
-          <span className="hidden sm:inline text-sm">
+          <span className="hidden text-sm sm:inline">
             {session.user.name || session.user.email}
           </span>
         )}
       </MenuButton>
-      <MenuItems className="absolute right-0 mt-2 w-40 origin-top-right rounded-md bg-white dark:bg-[var(--card-bg)] border border-[var(--color-card-border)] shadow-lg focus:outline-none z-50">
+      <MenuItems className="absolute right-0 z-50 mt-2 w-40 origin-top-right rounded-md border border-[var(--color-card-border)] bg-white shadow-lg focus:outline-none dark:bg-[var(--card-bg)]">
         <div className="py-1">
           <MenuItem>
             <button
               onClick={() => signOut()}
-              className="w-full text-left px-4 py-2 text-sm text-red-500"
+              className="w-full px-4 py-2 text-left text-sm text-red-500"
             >
               <div className="flex items-center gap-2">
                 Sign out

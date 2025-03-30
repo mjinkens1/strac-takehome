@@ -1,10 +1,9 @@
 // src/lib/auth.ts
+import { type NextAuthOptions } from 'next-auth';
+import { DefaultSession } from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
 
-import GoogleProvider from "next-auth/providers/google";
-import { type NextAuthOptions } from "next-auth";
-import { DefaultSession } from "next-auth";
-
-declare module "next-auth" {
+declare module 'next-auth' {
   interface Session extends DefaultSession {
     accessToken?: string;
     error?: string;
@@ -12,10 +11,10 @@ declare module "next-auth" {
 }
 
 const googleScopes = [
-  "https://www.googleapis.com/auth/drive",
-  "https://www.googleapis.com/auth/userinfo.email",
-  "https://www.googleapis.com/auth/userinfo.profile",
-].join(" ");
+  'https://www.googleapis.com/auth/drive',
+  'https://www.googleapis.com/auth/userinfo.email',
+  'https://www.googleapis.com/auth/userinfo.profile',
+].join(' ');
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -24,8 +23,8 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
-          access_type: "offline",
-          prompt: "consent",
+          access_type: 'offline',
+          prompt: 'consent',
           scope: googleScopes,
         },
       },
@@ -48,15 +47,15 @@ export const authOptions: NextAuthOptions = {
 
       // Token expired, refresh it
       try {
-        const res = await fetch("https://oauth2.googleapis.com/token", {
-          method: "POST",
+        const res = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            'Content-Type': 'application/x-www-form-urlencoded',
           },
           body: new URLSearchParams({
             client_id: process.env.GOOGLE_CLIENT_ID!,
             client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-            grant_type: "refresh_token",
+            grant_type: 'refresh_token',
             refresh_token: token.refreshToken as string,
           }),
         });
@@ -72,8 +71,8 @@ export const authOptions: NextAuthOptions = {
           // refreshToken: refreshed.refresh_token ?? token.refreshToken, // optional, keep if rotating tokens
         };
       } catch (error) {
-        console.error("Failed to refresh access token", error);
-        return { ...token, error: "RefreshAccessTokenError" as const };
+        console.error('Failed to refresh access token', error);
+        return { ...token, error: 'RefreshAccessTokenError' as const };
       }
     },
 
@@ -84,7 +83,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: "/login",
+    signIn: '/login',
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

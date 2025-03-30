@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { BeakerIcon } from "@heroicons/react/24/outline";
+import { BeakerIcon } from '@heroicons/react/24/outline';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 
-import { UploadModal } from "./components/UploadModal/UploadModal";
-import { TopProgressBar } from "../components/TopProgress";
-import { NavBar } from "./components/Navbar/Navbar";
-import { FileTable } from "./components/FileTable/FileTable";
-import { useToast } from "../components/Toast";
-import { TableSkeleton } from "./components/TableSkeleton";
-import type { DriveFile } from "./types";
+import { useToast } from '../components/Toast';
+import { TopProgressBar } from '../components/TopProgress';
+import { FileTable } from './components/FileTable/FileTable';
+import { NavBar } from './components/Navbar/Navbar';
+import { TableSkeleton } from './components/TableSkeleton';
+import { UploadModal } from './components/UploadModal/UploadModal';
+import type { DriveFile } from './types';
 
 export default function DashboardPage() {
   const { status } = useSession();
@@ -28,7 +28,7 @@ export default function DashboardPage() {
   const fetchFiles = async (pageToken?: string, showLoading = true) => {
     setLoading(showLoading);
     try {
-      const res = await fetch(`/api/drive/list?pageToken=${pageToken || ""}`);
+      const res = await fetch(`/api/drive/list?pageToken=${pageToken || ''}`);
       const data = await res.json();
 
       if (res.ok) {
@@ -37,7 +37,7 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error(error);
-      setError("Failed to load files");
+      setError('Failed to load files');
     } finally {
       setLoading(false);
     }
@@ -56,38 +56,38 @@ export default function DashboardPage() {
 
     try {
       const res = await fetch(`/api/drive/delete?id=${fileId}`, {
-        method: "DELETE",
+        method: 'DELETE',
       });
 
-      if (!res.ok) throw new Error("Delete failed");
+      if (!res.ok) throw new Error('Delete failed');
 
       const file = files.find((f) => f.id === fileId);
-      addToast({ message: "Deleted " + file?.name || "file", type: "success" });
+      addToast({ message: 'Deleted ' + file?.name || 'file', type: 'success' });
     } catch (error) {
-      console.error("Rollback due to failed delete:", error);
-      addToast({ message: "Failed to delete file", type: "error" });
+      console.error('Rollback due to failed delete:', error);
+      addToast({ message: 'Failed to delete file', type: 'error' });
       setFiles(prevFiles); // Rollback
     }
   };
 
   const handleUploadSuccess = (file: DriveFile) => {
     setFiles((prevFiles) => [file, ...prevFiles]);
-    addToast({ message: "Uploaded " + file.name || "file", type: "success" });
+    addToast({ message: 'Uploaded ' + file.name || 'file', type: 'success' });
   };
 
   useEffect(() => {
-    if (status === "unauthenticated") router.replace("/login");
+    if (status === 'unauthenticated') router.replace('/login');
   }, [status, router]);
 
   useEffect(() => {
-    if (status === "authenticated" && !hasFetched.current) {
+    if (status === 'authenticated' && !hasFetched.current) {
       hasFetched.current = true;
       fetchFiles();
     }
   }, [status]);
 
-  if (status !== "authenticated") {
-    return <TopProgressBar loading={status === "loading"} />;
+  if (status !== 'authenticated') {
+    return <TopProgressBar loading={status === 'loading'} />;
   }
 
   return (
@@ -95,8 +95,8 @@ export default function DashboardPage() {
       <NavBar />
       <TopProgressBar loading={loading} data-testid="top-progress" />
 
-      <main className="mx-auto max-w-7xl px-4 py-12 h-[calc(100vh-120px)]">
-        <div className="flex items-center justify-between mb-6">
+      <main className="mx-auto h-[calc(100vh-120px)] max-w-7xl px-4 py-12">
+        <div className="mb-6 flex items-center justify-between">
           <h1 className="text-3xl font-bold tracking-tight">Your Files</h1>
           <UploadModal onUploadSuccess={handleUploadSuccess} />
         </div>
@@ -105,14 +105,14 @@ export default function DashboardPage() {
           {loading && <TableSkeleton />}
 
           {error && (
-            <div className="h-full flex items-center justify-center">
+            <div className="flex h-full items-center justify-center">
               <p className="text-sm text-red-500">{error}</p>
             </div>
           )}
           {!loading && files.length === 0 && (
-            <div className="text-center text-muted-foreground py-12 h-full flex items-center justify-center">
+            <div className="text-muted-foreground flex h-full items-center justify-center py-12 text-center">
               <div className="flex flex-col items-center">
-                <BeakerIcon className="mx-auto size-8 text-gray-500 mb-2" />
+                <BeakerIcon className="mx-auto mb-2 size-8 text-gray-500" />
                 <p className="text-sm">No files uploaded yet.</p>
               </div>
             </div>

@@ -1,23 +1,24 @@
-import { render, screen } from "@testing-library/react";
-import { TopProgressBar } from "../TopProgress";
+import { render, screen } from '@testing-library/react';
 
-describe("TopProgressBar", () => {
-  it("should render with loading state", () => {
+import { TopProgressBar } from '../TopProgress';
+
+describe('TopProgressBar', () => {
+  it('should render with loading state', () => {
     render(<TopProgressBar loading={true} />);
-    const progressBar = screen.getByRole("progressbar");
-    expect(progressBar).toHaveClass("opacity-100");
+    const progressBar = screen.getByRole('progressbar');
+    expect(progressBar).toHaveClass('opacity-100');
   });
 
-  it("should render without loading state", () => {
+  it('should render without loading state', () => {
     render(<TopProgressBar loading={false} />);
-    const progressBar = screen.getByRole("progressbar");
-    expect(progressBar).toHaveClass("opacity-0");
+    const progressBar = screen.getByRole('progressbar');
+    expect(progressBar).toHaveClass('opacity-0');
   });
 
-  it("should apply custom className", () => {
-    const customClass = "custom-class";
+  it('should apply custom className', () => {
+    const customClass = 'custom-class';
     render(<TopProgressBar loading={false} className={customClass} />);
-    const container = screen.getByTestId("progress-container");
+    const container = screen.getByTestId('progress-container');
     expect(container).toHaveClass(customClass);
   });
 });

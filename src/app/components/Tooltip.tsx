@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
-import { ReactNode } from "react";
+import * as TooltipPrimitive from '@radix-ui/react-tooltip';
+import { ReactNode } from 'react';
 
 export type TooltipPropsT = {
   text: ReactNode;

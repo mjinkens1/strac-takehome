@@ -1,8 +1,9 @@
-import { useMemo } from "react";
-import { DriveFile } from "../../types";
-import { MemoizedFileRow } from "./components/FileRow";
-import { TableHeader } from "./components/TableHeader";
-import { LoadMoreRow } from "./components/LoadMoreRow";
+import { useMemo } from 'react';
+
+import { DriveFile } from '../../types';
+import { MemoizedFileRow } from './components/FileRow';
+import { LoadMoreRow } from './components/LoadMoreRow';
+import { TableHeader } from './components/TableHeader';
 
 interface FileTableProps {
   files: DriveFile[];
@@ -22,15 +23,13 @@ export function FileTable({
   const sortedFiles = useMemo(
     () =>
       [...files].sort(
-        (a, b) =>
-          new Date(b.modifiedTime).getTime() -
-          new Date(a.modifiedTime).getTime()
+        (a, b) => new Date(b.modifiedTime).getTime() - new Date(a.modifiedTime).getTime(),
       ),
-    [files]
+    [files],
   );
 
   return (
-    <div className="flex flex-col justify-between h-full rounded border border-[var(--color-card-border)]">
+    <div className="flex h-full flex-col justify-between rounded border border-[var(--color-card-border)]">
       <div className="relative min-h-0 overflow-y-auto rounded bg-[var(--color-card-bg)] shadow-xl backdrop-blur-md">
         <table className="h-full min-w-full table-auto text-sm">
           <TableHeader />

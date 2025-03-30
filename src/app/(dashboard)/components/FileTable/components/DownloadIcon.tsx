@@ -1,5 +1,6 @@
-import { ArrowDownTrayIcon, CheckIcon } from "@heroicons/react/24/outline";
-import { Tooltip } from "../../../../components/Tooltip";
+import { ArrowDownTrayIcon, CheckIcon } from '@heroicons/react/24/outline';
+
+import { Tooltip } from '../../../../components/Tooltip';
 
 interface DownloadIconProps {
   downloaded: boolean;
@@ -7,15 +8,9 @@ interface DownloadIconProps {
   progress: number;
 }
 
-export function DownloadIcon({
-  downloaded,
-  downloading,
-  progress,
-}: DownloadIconProps) {
+export function DownloadIcon({ downloaded, downloading, progress }: DownloadIconProps) {
   if (downloaded) {
-    return (
-      <CheckIcon data-testid="check-icon" className="size-5 text-green-500" />
-    );
+    return <CheckIcon data-testid="check-icon" className="size-5 text-green-500" />;
   }
 
   const strokeDasharray = 2 * Math.PI * 16;

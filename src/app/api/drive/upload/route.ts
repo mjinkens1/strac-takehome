@@ -1,27 +1,28 @@
-import { google } from "googleapis";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { NextRequest, NextResponse } from "next/server";
-import { Readable } from "stream";
-import { DriveFile } from "@/app/(dashboard)/types";
+import { google } from 'googleapis';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { Readable } from 'stream';
+
+import { DriveFile } from '@/app/(dashboard)/types';
+import { authOptions } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
   if (!session || !session.accessToken) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const formData = await req.formData();
-  const files = formData.getAll("file") as File[];
+  const files = formData.getAll('file') as File[];
 
   if (!files.length) {
-    return NextResponse.json({ error: "No files uploaded" }, { status: 400 });
+    return NextResponse.json({ error: 'No files uploaded' }, { status: 400 });
   }
 
   const auth = new google.auth.OAuth2();
   auth.setCredentials({ access_token: session.accessToken });
-  const drive = google.drive({ version: "v3", auth });
+  const drive = google.drive({ version: 'v3', auth });
 
   const results: DriveFile[] = [];
 
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
       const res = await drive.files.create({
         requestBody: { name: file.name },
         media: { mimeType: file.type, body: stream },
-        fields: "id, name, mimeType, modifiedTime",
+        fields: 'id, name, mimeType, modifiedTime',
       });
 
       results.push({
@@ -43,7 +44,7 @@ export async function POST(req: NextRequest) {
         modifiedTime: res.data.modifiedTime as string,
       });
     } catch (err) {
-      console.error("Error uploading", file.name, err);
+      console.error('Error uploading', file.name, err);
     }
   }
 

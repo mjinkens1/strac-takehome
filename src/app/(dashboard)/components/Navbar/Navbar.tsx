@@ -1,5 +1,5 @@
-import { Logo } from "./components/Logo";
-import { UserMenu } from "./components/UserMenu";
+import { Logo } from './components/Logo';
+import { UserMenu } from './components/UserMenu';
 
 export function NavBar() {
   return (

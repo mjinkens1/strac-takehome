@@ -1,56 +1,49 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { MemoizedFileRow } from "../FileRow";
-import { mimeTypeMap } from "../../mime-type-map";
-import { DriveFile } from "@/app/(dashboard)/types";
+import { fireEvent, render, screen } from '@testing-library/react';
 
-jest.mock("../FileActions", () => ({
-  FileActions: ({
-    file,
-    onDelete,
-  }: {
-    file: DriveFile;
-    onDelete: (fileId: string) => void;
-  }) => (
-    <button
-      data-testid={`delete-button-${file.id}`}
-      onClick={() => onDelete(file.id)}
-    >
+import { DriveFile } from '@/app/(dashboard)/types';
+
+import { mimeTypeMap } from '../../mime-type-map';
+import { MemoizedFileRow } from '../FileRow';
+
+jest.mock('../FileActions', () => ({
+  FileActions: ({ file, onDelete }: { file: DriveFile; onDelete: (fileId: string) => void }) => (
+    <button data-testid={`delete-button-${file.id}`} onClick={() => onDelete(file.id)}>
       Mock Delete
     </button>
   ),
 }));
 
-jest.mock("../../../../../components/Tooltip", () => ({
+jest.mock('../../../../../components/Tooltip', () => ({
   Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 const mockFile = {
-  id: "abc123",
-  name: "Sample Report",
-  mimeType: "application/pdf",
-  modifiedTime: "2024-12-01T18:30:00.000Z",
+  id: 'abc123',
+  name: 'Sample Report',
+  mimeType: 'application/pdf',
+  modifiedTime: '2024-12-01T18:30:00.000Z',
 };
 
-describe("FileRow", () => {
-  it("renders file name with tooltip wrapper", () => {
+describe('FileRow', () => {
+  it('renders file name with tooltip wrapper', () => {
     render(
       <table>
         <tbody>
           <MemoizedFileRow file={mockFile} onDelete={jest.fn()} />
         </tbody>
-      </table>
+      </table>,
     );
 
-    expect(screen.getByText("Sample Report")).toBeInTheDocument();
+    expect(screen.getByText('Sample Report')).toBeInTheDocument();
   });
 
-  it("displays correct MIME icon and label", () => {
+  it('displays correct MIME icon and label', () => {
     render(
       <table>
         <tbody>
           <MemoizedFileRow file={mockFile} onDelete={jest.fn()} />
         </tbody>
-      </table>
+      </table>,
     );
 
     const label = mimeTypeMap[mockFile.mimeType]?.label;
@@ -59,7 +52,7 @@ describe("FileRow", () => {
     }
   });
 
-  it("formats and displays the modified date", () => {
+  it('formats and displays the modified date', () => {
     const expected = new Date(mockFile.modifiedTime).toLocaleString();
 
     render(
@@ -67,13 +60,13 @@ describe("FileRow", () => {
         <tbody>
           <MemoizedFileRow file={mockFile} onDelete={jest.fn()} />
         </tbody>
-      </table>
+      </table>,
     );
 
     expect(screen.getByText(expected)).toBeInTheDocument();
   });
 
-  it("calls onDelete when delete button is clicked", () => {
+  it('calls onDelete when delete button is clicked', () => {
     const onDelete = jest.fn();
 
     render(
@@ -81,12 +74,12 @@ describe("FileRow", () => {
         <tbody>
           <MemoizedFileRow file={mockFile} onDelete={onDelete} />
         </tbody>
-      </table>
+      </table>,
     );
 
-    const deleteBtn = screen.getByTestId("delete-button-abc123");
+    const deleteBtn = screen.getByTestId('delete-button-abc123');
     fireEvent.click(deleteBtn);
 
-    expect(onDelete).toHaveBeenCalledWith("abc123");
+    expect(onDelete).toHaveBeenCalledWith('abc123');
   });
 });

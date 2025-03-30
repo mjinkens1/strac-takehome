@@ -1,19 +1,16 @@
-import { render, screen, act, waitFor } from "@testing-library/react";
-import { ToastManager, useToast } from "../Toast";
-import { FC } from "react";
+import { act, render, screen, waitFor } from '@testing-library/react';
+import { FC } from 'react';
+
+import { ToastManager, useToast } from '../Toast';
 
 // Test component that uses the toast
 const TestComponent: FC = () => {
   const addToast = useToast();
 
-  return (
-    <button onClick={() => addToast({ message: "Test message" })}>
-      Show Toast
-    </button>
-  );
+  return <button onClick={() => addToast({ message: 'Test message' })}>Show Toast</button>;
 };
 
-describe("Toast", () => {
+describe('Toast', () => {
   beforeEach(() => {
     // Reset the timer mocks before each test
     jest.useFakeTimers();
@@ -23,28 +20,28 @@ describe("Toast", () => {
     jest.useRealTimers();
   });
 
-  it("should render children", () => {
+  it('should render children', () => {
     render(
       <ToastManager>
         <div data-testid="child">Child content</div>
-      </ToastManager>
+      </ToastManager>,
     );
 
-    expect(screen.getByTestId("child")).toBeInTheDocument();
+    expect(screen.getByTestId('child')).toBeInTheDocument();
   });
 
-  it("should show and hide toast message", async () => {
+  it('should show and hide toast message', async () => {
     render(
       <ToastManager>
         <TestComponent />
-      </ToastManager>
+      </ToastManager>,
     );
 
     // Click button to show toast
-    screen.getByRole("button").click();
+    screen.getByRole('button').click();
 
     // Check if toast is visible
-    expect(await screen.findByText("Test message")).toBeInTheDocument();
+    expect(await screen.findByText('Test message')).toBeInTheDocument();
 
     // Fast-forward time to trigger toast removal
     act(() => {
@@ -53,7 +50,7 @@ describe("Toast", () => {
 
     // Verify toast is removed
     await waitFor(() => {
-      expect(screen.queryByText("Test message")).not.toBeInTheDocument();
+      expect(screen.queryByText('Test message')).not.toBeInTheDocument();
     });
   });
 });

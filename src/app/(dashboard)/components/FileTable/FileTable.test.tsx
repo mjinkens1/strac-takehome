@@ -1,15 +1,11 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { FileTable } from "./FileTable";
-import { DriveFile } from "../../types";
+import { fireEvent, render, screen } from '@testing-library/react';
+
+import { DriveFile } from '../../types';
+import { FileTable } from './FileTable';
+
 // Mock the child components
-jest.mock("./components/FileRow", () => ({
-  MemoizedFileRow: ({
-    file,
-    onDelete,
-  }: {
-    file: DriveFile;
-    onDelete: (id: string) => void;
-  }) => (
+jest.mock('./components/FileRow', () => ({
+  MemoizedFileRow: ({ file, onDelete }: { file: DriveFile; onDelete: (id: string) => void }) => (
     <tr data-testid={`file-row-${file.id}`}>
       <td>{file.name}</td>
       <td>
@@ -19,11 +15,11 @@ jest.mock("./components/FileRow", () => ({
   ),
 }));
 
-jest.mock("./components/TableHeader", () => ({
+jest.mock('./components/TableHeader', () => ({
   TableHeader: () => <thead data-testid="table-header" />,
 }));
 
-jest.mock("./components/LoadMoreRow", () => ({
+jest.mock('./components/LoadMoreRow', () => ({
   LoadMoreRow: ({
     onLoadMore,
     nextPageToken,
@@ -33,10 +29,7 @@ jest.mock("./components/LoadMoreRow", () => ({
   }) => (
     <tr>
       <td>
-        <button
-          data-testid="load-more"
-          onClick={() => onLoadMore(nextPageToken)}
-        >
+        <button data-testid="load-more" onClick={() => onLoadMore(nextPageToken)}>
           Load More
         </button>
       </td>
@@ -44,19 +37,19 @@ jest.mock("./components/LoadMoreRow", () => ({
   ),
 }));
 
-describe("FileTable", () => {
+describe('FileTable', () => {
   const mockFiles = [
     {
-      id: "1",
-      name: "test1.pdf",
-      modifiedTime: "2024-01-01T00:00:00Z",
-      mimeType: "application/pdf",
+      id: '1',
+      name: 'test1.pdf',
+      modifiedTime: '2024-01-01T00:00:00Z',
+      mimeType: 'application/pdf',
     },
     {
-      id: "2",
-      name: "test2.pdf",
-      modifiedTime: "2024-01-02T00:00:00Z",
-      mimeType: "application/pdf",
+      id: '2',
+      name: 'test2.pdf',
+      modifiedTime: '2024-01-02T00:00:00Z',
+      mimeType: 'application/pdf',
     },
   ];
 
@@ -71,43 +64,43 @@ describe("FileTable", () => {
     jest.clearAllMocks();
   });
 
-  it("renders table with header and file rows", () => {
+  it('renders table with header and file rows', () => {
     render(<FileTable {...mockProps} />);
 
-    expect(screen.getByTestId("table-header")).toBeInTheDocument();
-    expect(screen.getByTestId("file-row-1")).toBeInTheDocument();
-    expect(screen.getByTestId("file-row-2")).toBeInTheDocument();
+    expect(screen.getByTestId('table-header')).toBeInTheDocument();
+    expect(screen.getByTestId('file-row-1')).toBeInTheDocument();
+    expect(screen.getByTestId('file-row-2')).toBeInTheDocument();
   });
 
-  it("sorts files by modified time in descending order", () => {
+  it('sorts files by modified time in descending order', () => {
     render(<FileTable {...mockProps} />);
 
     const rows = screen.getAllByTestId(/file-row/);
     // Most recent file should be first
-    expect(rows[0]).toHaveAttribute("data-testid", "file-row-2");
-    expect(rows[1]).toHaveAttribute("data-testid", "file-row-1");
+    expect(rows[0]).toHaveAttribute('data-testid', 'file-row-2');
+    expect(rows[1]).toHaveAttribute('data-testid', 'file-row-1');
   });
 
-  it("shows load more button when nextPageToken is provided", () => {
+  it('shows load more button when nextPageToken is provided', () => {
     render(<FileTable {...mockProps} nextPageToken="next-token" />);
 
-    const loadMoreButton = screen.getByTestId("load-more");
+    const loadMoreButton = screen.getByTestId('load-more');
     expect(loadMoreButton).toBeInTheDocument();
 
     fireEvent.click(loadMoreButton);
-    expect(mockProps.onLoadMore).toHaveBeenCalledWith("next-token");
+    expect(mockProps.onLoadMore).toHaveBeenCalledWith('next-token');
   });
 
-  it("handles file deletion", () => {
+  it('handles file deletion', () => {
     render(<FileTable {...mockProps} />);
 
-    const deleteButtons = screen.getAllByText("Delete");
+    const deleteButtons = screen.getAllByText('Delete');
     fireEvent.click(deleteButtons[0]);
 
     expect(mockProps.onDelete).toHaveBeenCalledWith(mockFiles[1].id);
   });
 
-  it("matches snapshot", () => {
+  it('matches snapshot', () => {
     const { container } = render(<FileTable {...mockProps} />);
     expect(container).toMatchSnapshot();
   });

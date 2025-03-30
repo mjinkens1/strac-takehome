@@ -1,9 +1,10 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { LoadMoreRow } from "../LoadMoreRow";
+import { fireEvent, render, screen } from '@testing-library/react';
 
-describe("LoadMoreRow", () => {
+import { LoadMoreRow } from '../LoadMoreRow';
+
+describe('LoadMoreRow', () => {
   const mockProps = {
-    nextPageToken: "next-token",
+    nextPageToken: 'next-token',
     loadingMore: false,
     onLoadMore: jest.fn(),
   };
@@ -12,40 +13,38 @@ describe("LoadMoreRow", () => {
     jest.clearAllMocks();
   });
 
-  it("renders load more button when not loading", () => {
+  it('renders load more button when not loading', () => {
     render(<LoadMoreRow {...mockProps} />);
 
-    const button = screen.getByRole("button");
-    expect(button).toHaveTextContent("Load More");
-    expect(button).toHaveClass("text-blue-600", "hover:text-blue-800");
+    const button = screen.getByRole('button');
+    expect(button).toHaveTextContent('Load More');
+    expect(button).toHaveClass('text-blue-600', 'hover:text-blue-800');
   });
 
-  it("shows loading spinner when loadingMore is true", () => {
+  it('shows loading spinner when loadingMore is true', () => {
     render(<LoadMoreRow {...mockProps} loadingMore={true} />);
 
-    const spinner = screen.getByTestId("loading-spinner");
+    const spinner = screen.getByTestId('loading-spinner');
     expect(spinner).toBeInTheDocument();
-    expect(spinner).toHaveClass("animate-spin");
+    expect(spinner).toHaveClass('animate-spin');
   });
 
-  it("calls onLoadMore with nextPageToken when clicked", () => {
+  it('calls onLoadMore with nextPageToken when clicked', () => {
     render(<LoadMoreRow {...mockProps} />);
 
-    const button = screen.getByRole("button");
+    const button = screen.getByRole('button');
     fireEvent.click(button);
 
     expect(mockProps.onLoadMore).toHaveBeenCalledWith(mockProps.nextPageToken);
   });
 
-  it("matches snapshot in both states", () => {
-    const { container: normalContainer } = render(
-      <LoadMoreRow {...mockProps} />
-    );
-    expect(normalContainer).toMatchSnapshot("normal");
+  it('matches snapshot in both states', () => {
+    const { container: normalContainer } = render(<LoadMoreRow {...mockProps} />);
+    expect(normalContainer).toMatchSnapshot('normal');
 
     const { container: loadingContainer } = render(
-      <LoadMoreRow {...mockProps} loadingMore={true} />
+      <LoadMoreRow {...mockProps} loadingMore={true} />,
     );
-    expect(loadingContainer).toMatchSnapshot("loading");
+    expect(loadingContainer).toMatchSnapshot('loading');
   });
 });

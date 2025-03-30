@@ -1,19 +1,14 @@
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from "@testing-library/react";
-import { UploadForm } from "../UploadForm";
-import { useDropzone } from "react-dropzone";
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { useDropzone } from 'react-dropzone';
+
+import { UploadForm } from '../UploadForm';
 
 // Mock react-dropzone
-jest.mock("react-dropzone", () => ({
+jest.mock('react-dropzone', () => ({
   useDropzone: jest.fn(),
 }));
 
-describe("UploadForm", () => {
+describe('UploadForm', () => {
   const mockOnSuccess = jest.fn();
   const mockOnUploading = jest.fn();
   const mockOnAllSuccess = jest.fn();
@@ -33,43 +28,43 @@ describe("UploadForm", () => {
           Promise.resolve({
             results: [
               {
-                id: "1",
-                name: "example.txt",
-                mimeType: "text/plain",
-                modifiedTime: "2025-03-30T00:00:00Z",
+                id: '1',
+                name: 'example.txt',
+                mimeType: 'text/plain',
+                modifiedTime: '2025-03-30T00:00:00Z',
               },
             ],
           }),
-      })
+      }),
     ) as jest.Mock;
   });
 
-  it("renders upload dropzone and button", () => {
+  it('renders upload dropzone and button', () => {
     render(
       <UploadForm
         uploading={false}
         onSuccess={mockOnSuccess}
         onUploading={mockOnUploading}
         onAllSuccess={mockOnAllSuccess}
-      />
+      />,
     );
 
     expect(screen.getByText(/drag & drop files here/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /upload/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /upload/i })).toBeDisabled();
   });
 
-  it("handles successful upload flow", async () => {
+  it('handles successful upload flow', async () => {
     render(
       <UploadForm
         uploading={false}
         onSuccess={mockOnSuccess}
         onUploading={mockOnUploading}
         onAllSuccess={mockOnAllSuccess}
-      />
+      />,
     );
 
-    const file = new File(["file content"], "example.txt", {
-      type: "text/plain",
+    const file = new File(['file content'], 'example.txt', {
+      type: 'text/plain',
     });
     const onDrop = (useDropzone as jest.Mock).mock.calls[0][0].onDrop;
 
@@ -77,7 +72,7 @@ describe("UploadForm", () => {
       onDrop([file]);
     });
 
-    const button = screen.getByRole("button", { name: /upload/i });
+    const button = screen.getByRole('button', { name: /upload/i });
 
     await act(async () => {
       fireEvent.click(button);
@@ -86,10 +81,10 @@ describe("UploadForm", () => {
     await waitFor(() => {
       expect(mockOnUploading).toHaveBeenCalledWith(true);
       expect(mockOnSuccess).toHaveBeenCalledWith({
-        id: "1",
-        name: "example.txt",
-        mimeType: "text/plain",
-        modifiedTime: "2025-03-30T00:00:00Z",
+        id: '1',
+        name: 'example.txt',
+        mimeType: 'text/plain',
+        modifiedTime: '2025-03-30T00:00:00Z',
       });
       expect(mockOnAllSuccess).toHaveBeenCalled();
     });
