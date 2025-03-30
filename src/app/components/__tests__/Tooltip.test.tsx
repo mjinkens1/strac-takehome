@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { Tooltip } from "./Tooltip";
+import { Tooltip } from "../Tooltip";
 
 describe("Tooltip", () => {
   it("renders children without tooltip when text is empty", () => {

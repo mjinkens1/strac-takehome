@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { UploadModal } from "./components/UploadModal/UploadModal";
@@ -20,6 +20,8 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [nextPageToken, setNextPageToken] = useState<string>();
   const addToast = useToast();
+
+  const hasFetched = useRef(false);
 
   const fetchFiles = async (pageToken?: string, showLoading = true) => {
     setLoading(showLoading);
@@ -75,7 +77,10 @@ export default function DashboardPage() {
   }, [status, router]);
 
   useEffect(() => {
-    if (status === "authenticated") fetchFiles();
+    if (status === "authenticated" && !hasFetched.current) {
+      hasFetched.current = true;
+      fetchFiles();
+    }
   }, [status]);
 
   if (status !== "authenticated") {
@@ -85,7 +90,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <NavBar />
-      <TopProgressBar loading={loading} />
+      <TopProgressBar loading={loading} data-testid="top-progress" />
 
       <main className="mx-auto max-w-7xl px-4 py-12 h-[calc(100vh-120px)]">
         <div className="flex items-center justify-between mb-6">

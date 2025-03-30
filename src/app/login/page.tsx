@@ -17,9 +17,15 @@ export default function LoginPage() {
     }
   }, [status, router]);
 
+  if (
+    (status !== "authenticated" && status === "loading") ||
+    status === "authenticated"
+  ) {
+    return <TopProgressBar loading />;
+  }
+
   return (
     <>
-      <TopProgressBar loading={status === "loading"} />
       <div className="flex flex-col min-h-screen items-center justify-center bg-[var(--background)] text-[var(--foreground)] px-4">
         <div className="flex items-center mb-20 gap-4">
           <NewspaperIcon

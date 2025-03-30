@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { LoadMoreRow } from "./LoadMoreRow";
+import { LoadMoreRow } from "../LoadMoreRow";
 
 describe("LoadMoreRow", () => {
   const mockProps = {

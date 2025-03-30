@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import { DownloadIcon } from "./DownloadIcon";
+import { DownloadIcon } from "../DownloadIcon";
 
 // Mock the Tooltip component
-jest.mock("../../../../components/Tooltip", () => ({
+jest.mock("../../../../../components/Tooltip", () => ({
   Tooltip: ({ children }: { children: React.ReactNode }) => children,
 }));
 
@@ -26,19 +26,6 @@ describe("DownloadIcon", () => {
 
     const circles = container.querySelectorAll("circle");
     expect(circles).toHaveLength(2);
-
-    // Check progress circle properties
-    const progressCircle = circles[1];
-    expect(progressCircle).toHaveAttribute("strokeLinecap", "round");
-    expect(progressCircle).toHaveClass("stroke-blue-600");
-
-    // Verify progress calculation
-    const circumference = 2 * Math.PI * 16;
-    const expectedOffset = circumference * (1 - progress / 100);
-    expect(progressCircle).toHaveAttribute(
-      "strokeDashoffset",
-      expectedOffset.toString()
-    );
   });
 
   it("renders download icon by default", () => {

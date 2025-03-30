@@ -13,6 +13,17 @@ const EXPORT_MIME_TYPES: Record<string, string> = {
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 };
 
+const EXTENSION_MAP: Record<string, string> = {
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ".xlsx",
+  "application/pdf": ".pdf",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+    ".pptx",
+};
+
+function sanitizeFilename(name: string): string {
+  return name.replace(/[^a-zA-Z0-9-_\.]/g, "_");
+}
+
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session || !session.accessToken) {
@@ -21,7 +32,7 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const fileId = searchParams.get("id");
-  const fileName = searchParams.get("name") || "file";
+  const userFileName = searchParams.get("name");
 
   if (!fileId) {
     return NextResponse.json({ error: "Missing file ID" }, { status: 400 });
@@ -32,7 +43,6 @@ export async function GET(req: NextRequest) {
   const drive = google.drive({ version: "v3", auth });
 
   try {
-    // Always get metadata first so we can access size/mimeType
     const fileMeta = await drive.files.get({
       fileId,
       fields: "mimeType, name, size",
@@ -43,14 +53,17 @@ export async function GET(req: NextRequest) {
       ? parseInt(fileMeta.data.size, 10)
       : undefined;
 
-    if (mimeType && EXPORT_MIME_TYPES[mimeType]) {
-      const exportMimeType = EXPORT_MIME_TYPES[mimeType];
+    const exportMimeType = mimeType && EXPORT_MIME_TYPES[mimeType];
+    const extension = exportMimeType ? EXTENSION_MAP[exportMimeType] || "" : "";
+    const baseFileName = userFileName || fileMeta.data.name || "file";
+    const fileName = sanitizeFilename(baseFileName) + extension;
+
+    if (exportMimeType) {
       const result = await drive.files.export(
         { fileId, mimeType: exportMimeType },
         { responseType: "stream" }
       );
 
-      // Buffer the stream to get content length
       const chunks: Uint8Array[] = [];
       for await (const chunk of result.data as Readable) {
         chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
@@ -66,7 +79,6 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // Standard file download (e.g., PDFs, images, videos, etc.)
     const result = await drive.files.get(
       { fileId, alt: "media" },
       { responseType: "stream" }
@@ -76,7 +88,9 @@ export async function GET(req: NextRequest) {
     return new NextResponse(stream as unknown as BodyInit, {
       headers: {
         "Content-Type": mimeType || "application/octet-stream",
-        "Content-Disposition": `attachment; filename="${fileName}"`,
+        "Content-Disposition": `attachment; filename="${sanitizeFilename(
+          baseFileName
+        )}"`,
         ...(size ? { "Content-Length": size.toString() } : {}),
       },
     });

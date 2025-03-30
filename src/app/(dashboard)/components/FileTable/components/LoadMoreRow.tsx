@@ -17,7 +17,10 @@ export function LoadMoreRow({
           className="w-full justify-center flex items-center text-blue-600 hover:text-blue-800"
         >
           {loadingMore ? (
-            <div className="size-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+            <div
+              data-testid="loading-spinner"
+              className="size-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"
+            />
           ) : (
             "Load More"
           )}

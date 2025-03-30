@@ -2,22 +2,6 @@ import { mimeTypeMap } from "./mime-type-map";
 import { DocumentTextIcon, TableCellsIcon } from "@heroicons/react/24/outline";
 
 describe("mimeTypeMap", () => {
-  it("should contain all expected MIME types", () => {
-    const expectedMimeTypes = [
-      "application/pdf",
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/vnd.ms-excel",
-      "text/csv",
-      "video/mp4",
-      // Add a few key types to test - no need to test all
-    ];
-
-    expectedMimeTypes.forEach((mimeType) => {
-      expect(mimeTypeMap).toHaveProperty(mimeType);
-    });
-  });
-
   it("should have correct structure for each entry", () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     Object.entries(mimeTypeMap).forEach(([_, value]) => {

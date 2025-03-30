@@ -42,6 +42,7 @@ export function FileActions({
 
       <Tooltip text="Delete">
         <button
+          data-testid={`delete-button-${fileId}`}
           onClick={() => onDelete(fileId)}
           className="text-red-500 hover:text-red-700"
         >

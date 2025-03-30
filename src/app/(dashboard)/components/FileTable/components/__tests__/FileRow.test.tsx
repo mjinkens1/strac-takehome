@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { FileRow } from "./FileRow";
-import { DriveFile } from "../../../types";
+import { FileRow } from "../FileRow";
+import { DriveFile } from "../../../../types";
 
 // Mock the child components and fetch
 jest.mock("../FileActions", () => ({
@@ -40,7 +40,7 @@ describe("FileRow", () => {
     render(<FileRow file={mockFile} onDelete={mockOnDelete} />);
 
     expect(screen.getByText("test-file.pdf")).toBeInTheDocument();
-    expect(screen.getByText("PDF")).toBeInTheDocument();
+    expect(screen.getByText("PDF Document")).toBeInTheDocument();
     expect(screen.getByText(/3\/20\/2024/)).toBeInTheDocument();
   });
 

@@ -12,6 +12,7 @@ exports[`LoadMoreRow matches snapshot in both states: loading 1`] = `
       >
         <div
           class="size-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"
+          data-testid="loading-spinner"
         />
       </button>
     </td>

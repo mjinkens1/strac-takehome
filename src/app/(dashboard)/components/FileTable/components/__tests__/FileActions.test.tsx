@@ -1,8 +1,8 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { FileActions } from "./FileActions";
+import { FileActions } from "../FileActions";
 
 // Mock the Tooltip component
-jest.mock("../../../../components/Tooltip", () => ({
+jest.mock("../../../../../components/Tooltip", () => ({
   Tooltip: ({ children }: { children: React.ReactNode }) => children,
 }));
 

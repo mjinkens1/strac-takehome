@@ -1,5 +1,5 @@
 import { render } from "@testing-library/react";
-import { GoogleIcon } from "./GoogleIcon";
+import { GoogleIcon } from "../GoogleIcon";
 
 describe("GoogleIcon", () => {
   it("renders the SVG with correct attributes", () => {

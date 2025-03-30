@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { TopProgressBar } from "./TopProgress";
+import { TopProgressBar } from "../TopProgress";
 
 describe("TopProgressBar", () => {
   it("should render with loading state", () => {

@@ -8,9 +8,8 @@ describe("Logo", () => {
     // Check if the text is rendered
     expect(screen.getByText("Strac Takehome")).toBeInTheDocument();
 
-    // Check if the icon is rendered
-    // Since NewspaperIcon is an SVG, we can check for its presence by role
-    expect(screen.getByRole("img")).toBeInTheDocument();
+    // Check if the SVG icon is rendered
+    expect(document.querySelector("svg")).toBeInTheDocument();
 
     // Verify the container has the expected classes
     const container = screen.getByText("Strac Takehome").parentElement;

@@ -23,15 +23,10 @@ export const useToast = () => {
 export function ToastManager({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const addToast = ({
-    message,
-    type = "success",
-  }: {
-    message: string;
-    type?: ToastType;
-  }) => {
+  const addToast = ({ message, type = "success" }: Omit<Toast, "id">) => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
+
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 4000);

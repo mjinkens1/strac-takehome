@@ -30,6 +30,7 @@ exports[`FileActions matches snapshot 1`] = `
     </a>
     <button
       class="text-red-500 hover:text-red-700"
+      data-testid="delete-button-123"
     >
       <svg
         aria-hidden="true"
