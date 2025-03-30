@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DownloadIcon matches snapshot for each state: default 1`] = `
+<div>
+  <svg
+    aria-hidden="true"
+    class="size-5"
+    data-slot="icon"
+    data-testid="download-icon"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.5"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+</div>
+`;
+
+exports[`DownloadIcon matches snapshot for each state: downloaded 1`] = `
+<div>
+  <svg
+    aria-hidden="true"
+    class="size-5 text-green-500"
+    data-slot="icon"
+    data-testid="check-icon"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.5"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="m4.5 12.75 6 6 9-13.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+</div>
+`;
+
+exports[`DownloadIcon matches snapshot for each state: downloading 1`] = `
+<div>
+  <div
+    class="relative size-5"
+  >
+    <svg
+      class="absolute top-0 left-0 size-full"
+      data-testid="progress-circle"
+      viewBox="0 0 36 36"
+    >
+      <circle
+        class="stroke-gray-300 dark:stroke-zinc-700"
+        cx="18"
+        cy="18"
+        fill="none"
+        r="16"
+        stroke-width="4"
+      />
+      <circle
+        class="stroke-blue-600 transition-all duration-400"
+        cx="18"
+        cy="18"
+        fill="none"
+        r="16"
+        stroke-dasharray="100.53096491487338"
+        stroke-dashoffset="50.26548245743669"
+        stroke-linecap="round"
+        stroke-width="4"
+      />
+    </svg>
+  </div>
+</div>
+`;

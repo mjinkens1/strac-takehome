@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #111111;
-  --accent: #000000;
-  --accent-hover: #333333;
-  --card-bg: #fafafa;
-  --card-border: #eaeaea;
+  --background: #000000;
+  --foreground: #ffffff;
+  --accent: #ffffff;
+  --accent-hover: #eaeaea;
+  --card-bg: #111111;
+  --card-border: #333333;
   --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   --gradient-start: #ff3868;
   --gradient-end: #714dff;
@@ -15,7 +15,7 @@
     var(--gradient-start),
     var(--gradient-end)
   );
-  --file-text: #000000;
+  --file-text: #ffffff;
 }
 
 @theme inline {
@@ -30,25 +30,6 @@
   --shadow-elevation: var(--shadow);
   --gradient-bg: var(--gradient);
   --color-file-text: var(--file-text);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #000000;
-    --foreground: #ffffff;
-    --accent: #ffffff;
-    --accent-hover: #eaeaea;
-    --card-bg: #111111;
-    --card-border: #333333;
-    --gradient-start: #ff3868;
-    --gradient-end: #714dff;
-    --gradient: linear-gradient(
-      90deg,
-      var(--gradient-start),
-      var(--gradient-end)
-    );
-    --file-text: #ffffff;
-  }
 }
 
 body {

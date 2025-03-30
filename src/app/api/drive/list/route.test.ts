@@ -18,7 +18,7 @@ beforeEach(() => {
 describe("/api/drive/list", () => {
   it("returns 401 if not authenticated", async () => {
     (getServerSession as jest.Mock).mockResolvedValue(null);
-    const res = await listRoute();
+    const res = await listRoute(new Request("http://localhost"));
     expect(res.status).toBe(401);
   });
 
@@ -35,7 +35,7 @@ describe("/api/drive/list", () => {
       files: { list: listMock },
     });
 
-    const res = await listRoute();
+    const res = await listRoute(new Request("http://localhost"));
     expect(res.status).toBe(200);
   });
 });

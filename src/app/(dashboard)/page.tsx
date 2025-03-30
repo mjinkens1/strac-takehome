@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { UploadModal } from "./components/UploadModal";
+import { UploadModal } from "./components/UploadModal/UploadModal";
 import { TopProgressBar } from "../components/TopProgress";
-import { NavBar } from "./components/NavBar";
-import { FileTable } from "./components/FileTable";
+import { NavBar } from "./components/Navbar/Navbar";
+import { FileTable } from "./components/FileTable/FileTable";
 import type { DriveFile } from "./types";
 import { BeakerIcon } from "@heroicons/react/24/outline";
 import { useToast } from "../components/Toast";

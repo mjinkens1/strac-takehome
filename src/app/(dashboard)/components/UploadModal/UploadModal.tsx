@@ -3,9 +3,9 @@
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon, ArrowUpTrayIcon } from "@heroicons/react/24/outline";
-import { UploadForm } from "./UploadForm";
+import { UploadForm } from "./components/UploadForm";
 import { TopProgressBar } from "@/app/components/TopProgress";
-import { DriveFile } from "../types";
+import { DriveFile } from "../../types";
 interface UploadModalProps {
   onUploadSuccess: (newFile: DriveFile) => void;
 }

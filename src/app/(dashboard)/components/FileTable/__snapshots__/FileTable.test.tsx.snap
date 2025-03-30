@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FileTable matches snapshot 1`] = `
+<div>
+  <div
+    class="flex flex-col justify-between h-full rounded border border-[var(--color-card-border)]"
+  >
+    <div
+      class="relative min-h-0 overflow-y-auto rounded bg-[var(--color-card-bg)] shadow-xl backdrop-blur-md"
+    >
+      <table
+        class="h-full min-w-full table-auto text-sm"
+      >
+        <thead
+          data-testid="table-header"
+        />
+        <tbody
+          class="relative"
+        >
+          <tr
+            data-testid="file-row-2"
+          >
+            <td>
+              test2.pdf
+            </td>
+            <td>
+              <button>
+                Delete
+              </button>
+            </td>
+          </tr>
+          <tr
+            data-testid="file-row-1"
+          >
+            <td>
+              test1.pdf
+            </td>
+            <td>
+              <button>
+                Delete
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;

@@ -1,6 +1,7 @@
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import DashboardPage from "./page";
 import { SessionProvider } from "next-auth/react";
+import { ToastManager } from "../components/Toast";
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -35,7 +36,9 @@ describe("DashboardPage integration", () => {
   it("shows uploaded file list and handles deletion", async () => {
     render(
       <SessionProvider session={{ expires: "", user: {} }}>
-        <DashboardPage />
+        <ToastManager>
+          <DashboardPage />
+        </ToastManager>
       </SessionProvider>
     );
 

@@ -120,7 +120,7 @@ export function UploadForm({
               : "border-[var(--color-card-border)] bg-[var(--card-bg)] hover:bg-[var(--muted)]"
           }`}
         >
-          <input {...getInputProps()} />
+          <input data-testid="file-input" {...getInputProps()} />
           <ArrowUpTrayIcon className="mx-auto mb-2 size-6 text-[var(--accent)]" />
           {isDragActive ? (
             <p className="text-sm">Drop your files here...</p>

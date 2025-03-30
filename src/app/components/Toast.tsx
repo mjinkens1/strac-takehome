@@ -3,20 +3,15 @@
 import { createContext, useContext, useState } from "react";
 import { CheckIcon, ExclamationCircleIcon } from "@heroicons/react/24/outline";
 
+type ToastType = "success" | "error";
 interface Toast {
   id: number;
   message: string;
-  type?: "success" | "error";
+  type?: ToastType;
 }
 
 const ToastContext = createContext<{
-  addToast: ({
-    message,
-    type,
-  }: {
-    message: string;
-    type?: "success" | "error";
-  }) => void;
+  addToast: ({ message, type }: { message: string; type?: ToastType }) => void;
 } | null>(null);
 
 export const useToast = () => {
@@ -33,7 +28,7 @@ export function ToastManager({ children }: { children: React.ReactNode }) {
     type = "success",
   }: {
     message: string;
-    type?: "success" | "error";
+    type?: ToastType;
   }) => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
