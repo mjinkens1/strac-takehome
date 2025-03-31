@@ -90,12 +90,6 @@ This project includes both unit and integration tests using **Jest** and **React
 npm run test
 ```
 
-To run tests in watch mode:
-
-```bash
-npm run test:watch
-```
-
 ---
 
 ## ⚙️ Design Decisions
